@@ -2,6 +2,7 @@ import { ObjectType, Field, Int, registerEnumType } from '@nestjs/graphql';
 import { TicketStatus, Priority } from '@prisma/client';
 import { Product } from 'src/product/entities/product.entity';
 import { Sales } from 'src/sales/entities/sales.entity';
+import { TicketLevels } from 'src/ticket_levels/entities/ticket_levels.entity';
 import { User } from 'src/user/entities/user.entity';
 
 registerEnumType(TicketStatus, {
@@ -88,4 +89,7 @@ export class Ticket {
 
   @Field(() => User, { nullable: true })
   deletedBy?: User;
+
+  @Field(() => [TicketLevels], { nullable: true })
+  ticket_levels?: TicketLevels[];
 }

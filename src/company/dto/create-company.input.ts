@@ -51,9 +51,11 @@ export class CreateCompanyInput {
   @Field(() => Boolean)
   is_dealer: boolean;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  @Field(() => String)
+  @Field(() => String, {
+    nullable: true,
+  })
   email: string;
 
   @IsOptional()

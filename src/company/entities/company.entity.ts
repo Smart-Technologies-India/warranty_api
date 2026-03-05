@@ -31,7 +31,7 @@ export class Company {
   @Field(() => Int)
   zone_id: number;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   email: string;
 
   @Field(() => String, { nullable: true })

@@ -1,10 +1,11 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Product } from 'src/product/entities/product.entity';
+import { Status } from '@prisma/client';
 import { Company } from 'src/company/entities/company.entity';
+import { Product } from 'src/product/entities/product.entity';
 import { User } from 'src/user/entities/user.entity';
 
 @ObjectType()
-export class DealerSales {
+export class ManfStock {
   @Field(() => Int)
   id: number;
 
@@ -15,18 +16,6 @@ export class DealerSales {
   product_id: number;
 
   @Field(() => Company)
-  dealer_purch: Company;
-
-  @Field(() => Int)
-  dealer_purch_id: number;
-
-  @Field(() => Company)
-  dealer_seller: Company;
-
-  @Field(() => Int)
-  dealer_seller_id: number;
-
-  @Field(() => Company)
   company: Company;
 
   @Field(() => Int)
@@ -35,14 +24,11 @@ export class DealerSales {
   @Field(() => Int)
   quantity: number;
 
-  @Field(() => Int)
-  warranty_till: number;
-
   @Field(() => String)
   batch_number: string;
 
-  @Field(() => Date)
-  sale_date: Date;
+  @Field(() => Status)
+  status: Status;
 
   @Field(() => Date)
   createdAt: Date;

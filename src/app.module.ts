@@ -24,6 +24,9 @@ import { TicketModule } from './ticket/ticket.module';
 import { TicketLevelsModule } from './ticket_levels/ticket_levels.module';
 import { TicketAttachmentsModule } from './ticket_attachments/ticket_attachments.module';
 import { CustomerFeedbackTicketModule } from './customer_feedback_ticket/customer_feedback_ticket.module';
+import { ProductFaqModule } from './product_faq/product_faq.module';
+import { ProductTroubleshootingModule } from './product_troubleshooting/product_troubleshooting.module';
+import { ManfStockModule } from './manf_stock/manf_stock.module';
 
 @Module({
   imports: [
@@ -60,6 +63,9 @@ import { CustomerFeedbackTicketModule } from './customer_feedback_ticket/custome
     TicketLevelsModule,
     TicketAttachmentsModule,
     CustomerFeedbackTicketModule,
+    ProductFaqModule,
+    ProductTroubleshootingModule,
+    ManfStockModule,
 
     // BaseModule,
   ],

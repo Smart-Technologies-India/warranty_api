@@ -12,7 +12,12 @@ export class UpdateDealerSalesInput extends PartialType(CreateDealerSalesInput) 
   @IsOptional()
   @IsInt()
   @Field(() => Int, { nullable: true })
-  dealer_id?: number;
+  dealer_purch_id?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Field(() => Int, { nullable: true })
+  dealer_seller_id?: number;
 
   @IsOptional()
   @IsInt()

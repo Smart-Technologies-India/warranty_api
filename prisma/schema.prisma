@@ -26,6 +26,9 @@ enum Role {
   MANUF_MANAGER
   MANUF_SALES
   MANUF_TECHNICAL
+  MANUF_TECH_GEN
+  MANUF_TECH_EXPERT
+  MANUF_TECH_MANAGER
   DEALER_ADMIN
   DEALER_ACCOUNTS
   DEALER_MANAGER
@@ -139,6 +142,9 @@ model user {
   dealer_stock_createdby dealer_stock[] @relation("dealer_stock_createdby")
   dealer_stock_updatedby dealer_stock[] @relation("dealer_stock_updatedby")
 
+  manf_stock_createdby manf_stock[] @relation("manf_stock_createdby")
+  manf_stock_updatedby manf_stock[] @relation("manf_stock_updatedby")
+
   company_subcategory_createdby company_subcategory[] @relation("company_subcategory_createdby")
   company_subcategory_updatedby company_subcategory[] @relation("company_subcategory_updatedby")
   company_subcategory_deletedby company_subcategory[] @relation("company_subcategory_deletedby")
@@ -180,7 +186,7 @@ model company {
   zone                  zone                  @relation(fields: [zone_id], references: [id])
   zone_id               Int
   is_dealer             Boolean               @default(false)
-  email                 String
+  email                 String?
   pan                   String?
   gst                   String?
   website               String?
@@ -204,35 +210,60 @@ model company {
   dealer_user_sales     sales[]               @relation("dealer")
   dealer_stock          dealer_stock[]        @relation("dealer")
   company_stock         dealer_stock[]        @relation("company")
-  dealer_sales          dealer_sales[]        @relation("dealer")
+  dealer_purch          dealer_sales[]        @relation("dealer_purch")
+  dealer_seller         dealer_sales[]        @relation("dealer_seller")
   company_sales         dealer_sales[]        @relation("company")
+  manfStocks            manf_stock[]
 }
 
 model product {
-  id             Int                 @id @default(autoincrement())
-  name           String
-  image          String?
-  subcategory    product_subcategory @relation(fields: [subcategory_id], references: [id])
-  subcategory_id Int
-  warranty_time  Int
-  company        company             @relation(fields: [company_id], references: [id])
-  company_id     Int
-  description    String?             @db.LongText
-  price          Float
-  status         Status              @default(ACTIVE)
-  createdAt      DateTime            @default(now())
-  createdBy      user                @relation("product_createdby", fields: [createdById], references: [id])
-  createdById    Int
-  updatedAt      DateTime            @updatedAt
-  updatedBy      user?               @relation("product_updatedby", fields: [updatedById], references: [id])
-  updatedById    Int?
-  deletedAt      DateTime?
-  deletedBy      user?               @relation("product_deletedby", fields: [deletedById], references: [id])
-  deletedById    Int?
-  sales          sales[]
-  dealer_sales   dealer_sales[]
-  dealer_stock   dealer_stock[]
-  ticket         ticket[]
+  id                      Int                       @id @default(autoincrement())
+  name                    String
+  image                   String?
+  subcategory             product_subcategory       @relation(fields: [subcategory_id], references: [id])
+  subcategory_id          Int
+  warranty_time           Int
+  company                 company                   @relation(fields: [company_id], references: [id])
+  company_id              Int
+  description             String?                   @db.LongText
+  price                   Float
+  status                  Status                    @default(ACTIVE)
+  createdAt               DateTime                  @default(now())
+  createdBy               user                      @relation("product_createdby", fields: [createdById], references: [id])
+  createdById             Int
+  updatedAt               DateTime                  @updatedAt
+  updatedBy               user?                     @relation("product_updatedby", fields: [updatedById], references: [id])
+  updatedById             Int?
+  deletedAt               DateTime?
+  deletedBy               user?                     @relation("product_deletedby", fields: [deletedById], references: [id])
+  deletedById             Int?
+  sales                   sales[]
+  dealer_sales            dealer_sales[]
+  dealer_stock            dealer_stock[]
+  ticket                  ticket[]
+  productFaqs             product_faq[]
+  productTroubleshootings product_troubleshooting[]
+  manfStocks              manf_stock[]
+}
+
+model product_faq {
+  id         Int     @id @default(autoincrement())
+  product    product @relation(fields: [product_id], references: [id])
+  product_id Int
+  question   String
+  answer     String  @db.LongText
+  status     Status  @default(ACTIVE)
+  priority   Int     @db.SmallInt
+}
+
+model product_troubleshooting {
+  id         Int     @id @default(autoincrement())
+  product    product @relation(fields: [product_id], references: [id])
+  product_id Int
+  issue      String  @db.LongText
+  solution   String  @db.LongText
+  status     Status  @default(ACTIVE)
+  priority   Int     @db.SmallInt
 }
 
 model sales {
@@ -257,23 +288,27 @@ model sales {
 }
 
 model dealer_sales {
-  id            Int      @id @default(autoincrement())
-  product       product  @relation(fields: [product_id], references: [id])
-  product_id    Int
-  dealer        company  @relation("dealer", fields: [dealer_id], references: [id])
-  dealer_id     Int
-  company       company  @relation("company", fields: [company_id], references: [id])
-  company_id    Int
-  quantity      Int
-  warranty_till Int
-  batch_number  String   @unique
-  sale_date     DateTime @default(now())
-  createdAt     DateTime @default(now())
-  createdBy     user     @relation("dealer_sales_createdby", fields: [createdById], references: [id])
-  createdById   Int
-  updatedAt     DateTime @updatedAt
-  updatedBy     user?    @relation("dealer_sales_updatedby", fields: [updatedById], references: [id])
-  updatedById   Int?
+  id               Int      @id @default(autoincrement())
+  product          product  @relation(fields: [product_id], references: [id])
+  product_id       Int
+  dealer_purch     company  @relation("dealer_purch", fields: [dealer_purch_id], references: [id])
+  dealer_purch_id  Int
+  dealer_seller    company  @relation("dealer_seller", fields: [dealer_seller_id], references: [id])
+  dealer_seller_id Int
+  company          company  @relation("company", fields: [company_id], references: [id])
+  company_id       Int
+  quantity         Int
+  warranty_till    Int
+  batch_number     String
+  sale_date        DateTime @default(now())
+  createdAt        DateTime @default(now())
+  createdBy        user     @relation("dealer_sales_createdby", fields: [createdById], references: [id])
+  createdById      Int
+  updatedAt        DateTime @updatedAt
+  updatedBy        user?    @relation("dealer_sales_updatedby", fields: [updatedById], references: [id])
+  updatedById      Int?
+
+  @@unique([dealer_seller_id, dealer_purch_id, product_id, batch_number], map: "dealer_sales_seller_purch_product_batch_key")
 }
 
 model company_subcategory {
@@ -320,7 +355,7 @@ model dealer_stock {
   product      product  @relation(fields: [product_id], references: [id])
   product_id   Int
   quantity     Int
-  batch_number String   @unique
+  batch_number String
   company      company  @relation("company", fields: [company_id], references: [id])
   company_id   Int
   status       Status   @default(ACTIVE)
@@ -329,6 +364,25 @@ model dealer_stock {
   createdById  Int
   updatedAt    DateTime @updatedAt
   updatedBy    user?    @relation("dealer_stock_updatedby", fields: [updatedById], references: [id])
+  updatedById  Int?
+
+  @@unique([dealer_id, product_id, batch_number], map: "dealer_stock_dealer_product_batch_key")
+}
+
+model manf_stock {
+  id           Int      @id @default(autoincrement())
+  product      product  @relation(fields: [product_id], references: [id])
+  product_id   Int
+  quantity     Int
+  batch_number String   @unique
+  company      company  @relation(fields: [company_id], references: [id])
+  company_id   Int
+  status       Status   @default(ACTIVE)
+  createdAt    DateTime @default(now())
+  createdBy    user     @relation("manf_stock_createdby", fields: [createdById], references: [id])
+  createdById  Int
+  updatedAt    DateTime @updatedAt
+  updatedBy    user?    @relation("manf_stock_updatedby", fields: [updatedById], references: [id])
   updatedById  Int?
 }
 

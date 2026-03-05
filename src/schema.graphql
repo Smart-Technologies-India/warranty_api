@@ -24,7 +24,7 @@ type Company {
   createdAt: DateTime!
   deletedAt: DateTime
   designation: String
-  email: String!
+  email: String
   gst: String
   id: Int!
   is_dealer: Boolean!
@@ -57,7 +57,7 @@ input CreateCompanyInput {
   contact_person_number: String!
   createdById: Int!
   designation: String!
-  email: String!
+  email: String
   gst: String
   is_dealer: Boolean!
   logo: String!
@@ -79,7 +79,8 @@ input CreateDealerSalesInput {
   batch_number: String!
   company_id: Int!
   createdById: Int!
-  dealer_id: Int!
+  dealer_purch_id: Int!
+  dealer_seller_id: Int!
   product_id: Int!
   quantity: Int!
   sale_date: DateTime
@@ -96,11 +97,28 @@ input CreateDealerStockInput {
   status: Status
 }
 
+input CreateManfStockInput {
+  batch_number: String!
+  company_id: Int!
+  createdById: Int!
+  product_id: Int!
+  quantity: Int!
+  status: Status
+}
+
 input CreateProductCategoryInput {
   createdById: Int!
   name: String!
   pic: String
   priority: Int!
+  status: Status
+}
+
+input CreateProductFaqInput {
+  answer: String!
+  priority: Int!
+  product_id: Int!
+  question: String!
   status: Status
 }
 
@@ -122,6 +140,14 @@ input CreateProductSubcategoryInput {
   pic: String
   priority: Int!
   product_category_id: Int!
+  status: Status
+}
+
+input CreateProductTroubleshootingInput {
+  issue: String!
+  priority: Int!
+  product_id: Int!
+  solution: String!
   status: Status
 }
 
@@ -234,8 +260,10 @@ type DealerSales {
   createdAt: DateTime!
   createdBy: User!
   createdById: Int!
-  dealer: Company!
-  dealer_id: Int!
+  dealer_purch: Company!
+  dealer_purch_id: Int!
+  dealer_seller: Company!
+  dealer_seller_id: Int!
   id: Int!
   product: Product!
   product_id: Int!
@@ -285,15 +313,42 @@ input LoginUserInput {
   password: String!
 }
 
+type ManfStock {
+  batch_number: String!
+  company: Company!
+  company_id: Int!
+  createdAt: DateTime!
+  createdBy: User!
+  createdById: Int!
+  id: Int!
+  product: Product!
+  product_id: Int!
+  quantity: Int!
+  status: Status!
+  updatedAt: DateTime!
+  updatedBy: User
+  updatedById: Int
+}
+
+type ManfStockPagination {
+  data: [ManfStock!]!
+  skip: Int!
+  take: Int!
+  total: Int!
+}
+
 type Mutation {
   createCity(inputType: CreateCityInput!): City!
   createCompany(inputType: CreateCompanyInput!): Company!
   createCustomerFeedbackTicket(inputType: CreateCustomerFeedbackTicketInput!): CustomerFeedbackTicket!
   createDealerSales(inputType: CreateDealerSalesInput!): DealerSales!
   createDealerStock(inputType: CreateDealerStockInput!): DealerStock!
+  createManfStock(inputType: CreateManfStockInput!): ManfStock!
   createProduct(inputType: CreateProductInput!): Product!
   createProductCategory(inputType: CreateProductCategoryInput!): ProductCategory!
+  createProductFaq(inputType: CreateProductFaqInput!): ProductFaq!
   createProductSubcategory(inputType: CreateProductSubcategoryInput!): ProductSubcategory!
+  createProductTroubleshooting(inputType: CreateProductTroubleshootingInput!): ProductTroubleshooting!
   createSales(inputType: CreateSalesInput!): Sales!
   createTicket(inputType: CreateTicketInput!): Ticket!
   createTicketAttachments(inputType: CreateTicketAttachmentsInput!): TicketAttachments!
@@ -306,9 +361,12 @@ type Mutation {
   deleteCustomerFeedbackTicket(id: Int!, userid: Int!): CustomerFeedbackTicket!
   deleteDealerSales(id: Int!, userid: Int!): DealerSales!
   deleteDealerStock(id: Int!, userid: Int!): DealerStock!
+  deleteManfStock(id: Int!, userid: Int!): ManfStock!
   deleteProduct(id: Int!, userid: Int!): Product!
   deleteProductCategory(id: Int!, userid: Int!): ProductCategory!
+  deleteProductFaq(id: Int!, userid: Int!): ProductFaq!
   deleteProductSubcategory(id: Int!, userid: Int!): ProductSubcategory!
+  deleteProductTroubleshooting(id: Int!, userid: Int!): ProductTroubleshooting!
   deleteSales(id: Int!, userid: Int!): Sales!
   deleteTicket(id: Int!, userid: Int!): Ticket!
   deleteTicketAttachments(id: Int!, userid: Int!): TicketAttachments!
@@ -323,9 +381,12 @@ type Mutation {
   updateCustomerFeedbackTicket(id: Int!, updateType: UpdateCustomerFeedbackTicketInput!): CustomerFeedbackTicket!
   updateDealerSales(id: Int!, updateType: UpdateDealerSalesInput!): DealerSales!
   updateDealerStock(id: Int!, updateType: UpdateDealerStockInput!): DealerStock!
+  updateManfStock(id: Int!, updateType: UpdateManfStockInput!): ManfStock!
   updateProduct(id: Int!, updateType: UpdateProductInput!): Product!
   updateProductCategory(id: Int!, updateType: UpdateProductCategoryInput!): ProductCategory!
+  updateProductFaq(id: Int!, updateType: UpdateProductFaqInput!): ProductFaq!
   updateProductSubcategory(id: Int!, updateType: UpdateProductSubcategoryInput!): ProductSubcategory!
+  updateProductTroubleshooting(id: Int!, updateType: UpdateProductTroubleshootingInput!): ProductTroubleshooting!
   updateSales(id: Int!, updateType: UpdateSalesInput!): Sales!
   updateTicket(id: Int!, updateType: UpdateTicketInput!): Ticket!
   updateTicketAttachments(id: Int!, updateType: UpdateTicketAttachmentsInput!): TicketAttachments!
@@ -391,6 +452,23 @@ type ProductCategoryPagination {
   total: Int!
 }
 
+type ProductFaq {
+  answer: String!
+  id: Int!
+  priority: Int!
+  product: Product!
+  product_id: Int!
+  question: String!
+  status: Status!
+}
+
+type ProductFaqPagination {
+  data: [ProductFaq!]!
+  skip: Int!
+  take: Int!
+  total: Int!
+}
+
 type ProductPagination {
   data: [Product!]!
   skip: Int!
@@ -424,15 +502,35 @@ type ProductSubcategoryPagination {
   total: Int!
 }
 
+type ProductTroubleshooting {
+  id: Int!
+  issue: String!
+  priority: Int!
+  product: Product!
+  product_id: Int!
+  solution: String!
+  status: Status!
+}
+
+type ProductTroubleshootingPagination {
+  data: [ProductTroubleshooting!]!
+  skip: Int!
+  take: Int!
+  total: Int!
+}
+
 type Query {
   getAllCity(whereSearchInput: WhereCitySearchInput!): [City!]!
   getAllCompany(whereSearchInput: WhereCompanySearchInput!): [Company!]!
   getAllCustomerFeedbackTicket(whereSearchInput: WhereCustomerFeedbackTicketSearchInput!): [CustomerFeedbackTicket!]!
   getAllDealerSales(whereSearchInput: WhereDealerSalesSearchInput!): [DealerSales!]!
   getAllDealerStock(whereSearchInput: WhereDealerStockSearchInput!): [DealerStock!]!
+  getAllManfStock(whereSearchInput: WhereManfStockSearchInput!): [ManfStock!]!
   getAllProduct(whereSearchInput: WhereProductSearchInput!): [Product!]!
   getAllProductCategory(whereSearchInput: WhereProductCategorySearchInput!): [ProductCategory!]!
+  getAllProductFaq(whereSearchInput: WhereProductFaqSearchInput!): [ProductFaq!]!
   getAllProductSubcategory(whereSearchInput: WhereProductSubcategorySearchInput!): [ProductSubcategory!]!
+  getAllProductTroubleshooting(whereSearchInput: WhereProductTroubleshootingSearchInput!): [ProductTroubleshooting!]!
   getAllSales(whereSearchInput: WhereSalesSearchInput!): [Sales!]!
   getAllTicket(whereSearchInput: WhereTicketSearchInput!): [Ticket!]!
   getAllTicketAttachments(whereSearchInput: WhereTicketAttachmentsSearchInput!): [TicketAttachments!]!
@@ -445,14 +543,18 @@ type Query {
   getCustomerFeedbackTicketById(id: Int!): CustomerFeedbackTicket!
   getDealerSalesById(id: Int!): DealerSales!
   getDealerStockById(id: Int!): DealerStock!
+  getManfStockById(id: Int!): ManfStock!
   getPaginatedCity(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereCitySearchInput!): CityPagination!
   getPaginatedCompany(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereCompanySearchInput!): CompanyPagination!
   getPaginatedCustomerFeedbackTicket(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereCustomerFeedbackTicketSearchInput!): CustomerFeedbackTicketPagination!
   getPaginatedDealerSales(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereDealerSalesSearchInput!): DealerSalesPagination!
   getPaginatedDealerStock(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereDealerStockSearchInput!): DealerStockPagination!
+  getPaginatedManfStock(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereManfStockSearchInput!): ManfStockPagination!
   getPaginatedProduct(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereProductSearchInput!): ProductPagination!
   getPaginatedProductCategory(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereProductCategorySearchInput!): ProductCategoryPagination!
+  getPaginatedProductFaq(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereProductFaqSearchInput!): ProductFaqPagination!
   getPaginatedProductSubcategory(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereProductSubcategorySearchInput!): ProductSubcategoryPagination!
+  getPaginatedProductTroubleshooting(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereProductTroubleshootingSearchInput!): ProductTroubleshootingPagination!
   getPaginatedSales(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereSalesSearchInput!): SalesPagination!
   getPaginatedTicket(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereTicketSearchInput!): TicketPagination!
   getPaginatedTicketAttachments(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereTicketAttachmentsSearchInput!): TicketAttachmentsPagination!
@@ -462,7 +564,9 @@ type Query {
   getPaginatedZone(searchPaginationInput: SearchPaginationInput!, whereSearchInput: WhereZoneSearchInput!): ZonePagination!
   getProductById(id: Int!): Product!
   getProductCategoryById(id: Int!): ProductCategory!
+  getProductFaqById(id: Int!): ProductFaq!
   getProductSubcategoryById(id: Int!): ProductSubcategory!
+  getProductTroubleshootingById(id: Int!): ProductTroubleshooting!
   getSalesById(id: Int!): Sales!
   getTicketAttachmentsById(id: Int!): TicketAttachments!
   getTicketById(id: Int!): Ticket!
@@ -476,9 +580,12 @@ type Query {
   searchCustomerFeedbackTicket(whereSearchInput: WhereCustomerFeedbackTicketSearchInput!): CustomerFeedbackTicket
   searchDealerSales(whereSearchInput: WhereDealerSalesSearchInput!): DealerSales
   searchDealerStock(whereSearchInput: WhereDealerStockSearchInput!): DealerStock
+  searchManfStock(whereSearchInput: WhereManfStockSearchInput!): ManfStock
   searchProduct(whereSearchInput: WhereProductSearchInput!): Product
   searchProductCategory(whereSearchInput: WhereProductCategorySearchInput!): ProductCategory
+  searchProductFaq(whereSearchInput: WhereProductFaqSearchInput!): ProductFaq
   searchProductSubcategory(whereSearchInput: WhereProductSubcategorySearchInput!): ProductSubcategory
+  searchProductTroubleshooting(whereSearchInput: WhereProductTroubleshootingSearchInput!): ProductTroubleshooting
   searchSales(whereSearchInput: WhereSalesSearchInput!): Sales
   searchTicket(whereSearchInput: WhereTicketSearchInput!): Ticket
   searchTicketAttachments(whereSearchInput: WhereTicketAttachmentsSearchInput!): TicketAttachments
@@ -500,6 +607,9 @@ enum Role {
   MANUF_MANAGER
   MANUF_SALES
   MANUF_TECHNICAL
+  MANUF_TECH_EXPERT
+  MANUF_TECH_GEN
+  MANUF_TECH_MANAGER
   SALES
   SYSTEM
   TECHNICAL
@@ -572,6 +682,7 @@ type Ticket {
   sale: Sales!
   sale_id: Int!
   status: String!
+  ticket_levels: [TicketLevels!]
   ticket_number: String!
   updatedAt: DateTime!
   updatedBy: User
@@ -690,7 +801,8 @@ input UpdateDealerSalesInput {
   batch_number: String
   company_id: Int
   createdById: Int
-  dealer_id: Int
+  dealer_purch_id: Int
+  dealer_seller_id: Int
   product_id: Int
   quantity: Int
   sale_date: DateTime
@@ -711,6 +823,16 @@ input UpdateDealerStockInput {
   updatedById: Int
 }
 
+input UpdateManfStockInput {
+  batch_number: String
+  company_id: Int
+  createdById: Int
+  product_id: Int
+  quantity: Int
+  status: Status
+  updatedById: Int
+}
+
 input UpdateProductCategoryInput {
   createdById: Int
   deletedAt: DateTime
@@ -721,6 +843,14 @@ input UpdateProductCategoryInput {
   status: Status
   updatedAt: DateTime
   updatedById: Int
+}
+
+input UpdateProductFaqInput {
+  answer: String
+  priority: Int
+  product_id: Int
+  question: String
+  status: Status
 }
 
 input UpdateProductInput {
@@ -750,6 +880,14 @@ input UpdateProductSubcategoryInput {
   status: Status
   updatedAt: DateTime
   updatedById: Int
+}
+
+input UpdateProductTroubleshootingInput {
+  issue: String
+  priority: Int
+  product_id: Int
+  solution: String
+  status: Status
 }
 
 input UpdateSalesInput {
@@ -945,7 +1083,8 @@ input WhereDealerSalesSearchInput {
   company_id: Int
   createdAt: DateTime
   createdById: Int
-  dealer_id: Int
+  dealer_purch_id: Int
+  dealer_seller_id: Int
   id: String
   product_id: Int
   quantity: Int
@@ -969,6 +1108,17 @@ input WhereDealerStockSearchInput {
   updatedById: Int
 }
 
+input WhereManfStockSearchInput {
+  batch_number: String
+  company_id: Int
+  createdById: Int
+  id: String
+  product_id: Int
+  quantity: Int
+  status: Status
+  updatedById: Int
+}
+
 input WhereProductCategorySearchInput {
   createdAt: DateTime
   createdById: Int
@@ -981,6 +1131,15 @@ input WhereProductCategorySearchInput {
   status: Status
   updatedAt: DateTime
   updatedById: Int
+}
+
+input WhereProductFaqSearchInput {
+  answer: String
+  id: String
+  priority: Int
+  product_id: Int
+  question: String
+  status: Status
 }
 
 input WhereProductSearchInput {
@@ -1014,6 +1173,15 @@ input WhereProductSubcategorySearchInput {
   status: Status
   updatedAt: DateTime
   updatedById: Int
+}
+
+input WhereProductTroubleshootingSearchInput {
+  id: String
+  issue: String
+  priority: Int
+  product_id: Int
+  solution: String
+  status: Status
 }
 
 input WhereSalesSearchInput {

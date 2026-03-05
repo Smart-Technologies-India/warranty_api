@@ -11,7 +11,12 @@ export class CreateDealerSalesInput {
   @IsNotEmpty()
   @IsInt()
   @Field(() => Int)
-  dealer_id: number;
+  dealer_purch_id: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  @Field(() => Int)
+  dealer_seller_id: number;
 
   @IsNotEmpty()
   @IsInt()
